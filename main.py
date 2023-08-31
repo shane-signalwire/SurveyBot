@@ -223,13 +223,13 @@ def question_and_answer():
     answer = request.json['argument']['parsed'][0]['answer']
 
     cursor.execute(
-        "UPDATE poll_answers SET answer = ? WHERE user_id = ? AND id = ?",
+        "UPDATE survey_answers SET answer = ? WHERE user_id = ? AND id = ?",
         (answer, user_id, question_id)
     )
     db.commit()
 
     rows = cursor.execute(
-        "SELECT question, id from poll_answers where user_id = ? and answer is NULL order by id limit 1",
+        "SELECT question, id from survey_answers where user_id = ? and answer is NULL order by id limit 1",
         (user_id,)
     ).fetchall()
 
@@ -255,7 +255,7 @@ def get_a_question(user_id):
     cursor = db.cursor()
 
     rows = cursor.execute(
-        "SELECT question, id from poll_answers where user_id = ? and answer is NULL order by id limit 1",
+        "SELECT question, id from survey_answers where user_id = ? and answer is NULL order by id limit 1",
         (user_id,)
     ).fetchall()
 
@@ -276,14 +276,14 @@ def add_questions_to_user(user_id):
     cursor = db.cursor()
 
     rows = cursor.execute(
-        "select id, question from poll_questions"
+        "select id, question from survey_questions"
     ).fetchall()
     for row in rows:
-        poll_question_id = row[0]
-        poll_question = row[1]
+        survey_question_id = row[0]
+        survey_question = row[1]
         cursor.execute(
-            "INSERT INTO poll_answers (user_id, question_id, question) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT id from poll_answers where user_id = ? and question_id = ?)",
-            (user_id, poll_question_id, poll_question, user_id, poll_question_id,)
+            "INSERT INTO survey_answers (user_id, question_id, question) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT id from survey_answers where user_id = ? and question_id = ?)",
+            (user_id, survey_question_id, survey_question, user_id, survey_question_id,)
         )
 
     db.commit()
@@ -293,4 +293,4 @@ def add_questions_to_user(user_id):
 
 
 if __name__ == '__main__':
-    surveybot.run(port='80')
+    surveybot.run()
